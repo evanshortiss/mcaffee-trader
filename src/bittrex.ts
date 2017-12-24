@@ -5,6 +5,8 @@ import * as Bittrex from '@evanshortiss/bittrex.js'
 import * as env from 'env-var'
 import log from './log'
 
+let bought = false;
+
 const client = new Bittrex.RestClient({
   apikey: env.get('BITTREX_API_KEY').required().asString(),
   apisecret: env.get('BITTREX_API_SECRET').required().asString()
@@ -16,9 +18,19 @@ const client = new Bittrex.RestClient({
  * @param btcAmount
  */
 export async function buyCoin (ticker: string, btcAmount: number) {
+  if (bought) {
+    log('already made a purchase. not making another without intervention')
+    return
+  }
+
+  if (!bought) {
+    log('making a purchase!')
+    bought = true
+  }
+
   const market = await client.getTicker('btc', ticker)
   const rate = market.Ask
-  const amt = (btcAmount / (rate * 0.9)).toString()
+  const amt = Math.floor((btcAmount / (rate * 0.9))).toString()
 
   log(`buying ${amt} of ${ticker} for ${rate}`)
 

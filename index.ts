@@ -86,9 +86,9 @@ async function parseMcaffeeTweet (data: StreamData) {
 
     log(`spending approx ${amtToSpend} on ${ticker}`  )
 
-    // const buyResult = await btrx.buyCoin(ticker, amtToSpend)
+    const buyResult = await btrx.buyCoin(ticker, amtToSpend)
 
-    // log(`bought ${ticker}. txid is ${buyResult}`)
+    log(`bought ${ticker}. txid is ${buyResult}`)
   } else {
     log(`${ticker} is not available on bittrex, not buying...`)
   }
