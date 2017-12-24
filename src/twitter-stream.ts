@@ -28,12 +28,14 @@ export function getStream () {
     stream.destroy()
   }
 
-  log('subscribing to twitter stream')
-
-  return stream = client.stream('statuses/filter', {
+  stream = client.stream('statuses/filter', {
     // follow: 'officialmcafee,evanshortiss',
     follow: '961445378,15011401'
   })
+
+  log('connected to twitter stream...hopefully. module does not emit all events')
+
+  return stream
 }
 
 export default getStream

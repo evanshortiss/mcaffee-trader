@@ -36,6 +36,8 @@ const onStreamData = (data: StreamData) => {
     log(JSON.stringify(data, null, 2))
 
     parseMcaffeeTweet(data)
+  } else {
+    log('received tweet, but was not by mcaffee')
   }
 }
 
