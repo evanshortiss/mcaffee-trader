@@ -80,7 +80,7 @@ async function parseMcaffeeTweet (data: StreamData) {
     const btcBalance = await btrx.getBtcBalance()
 
     // Take 10% of balance and buy mcaffee's shill coin
-    const amtToSpend = btcBalance * 0.1
+    const amtToSpend = btcBalance * 0.2
 
     log(`spending approx ${amtToSpend} on ${ticker}`)
 
