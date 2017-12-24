@@ -1,0 +1,29 @@
+{
+  "name": "mcpump",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && DEBUG=* node index.js",
+    "tsc": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Evan Shortiss <evanshortiss@gmail.com> (http://evanshortiss.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "@evanshortiss/bittrex.js": "~0.2.0",
+    "@types/natural": "~0.2.33",
+    "axios": "~0.17.1",
+    "dotenv": "~4.0.0",
+    "env-var": "~3.1.0",
+    "natural": "~0.5.4",
+    "nock": "~9.1.5",
+    "twitter": "~1.7.1"
+  },
+  "devDependencies": {
+    "@types/debug": "0.0.30",
+    "@types/nock": "~9.1.0",
+    "@types/node": "~8.5.2",
+    "typescript": "~2.6.2"
+  }
+}
