@@ -31,7 +31,7 @@ function queueSell (ticker: string) {
       'btc',
       ticker,
       balance.Available.toString(),
-      (market.Ask * 0.99).toFixed(8)
+      (market.Ask * 0.98).toFixed(8)
     )
 
     log(`sell success:`, sellResult)
@@ -76,7 +76,7 @@ export async function buyCoin (ticker: string, btcAmount: number) {
     'btc',
     ticker,
     amt,
-    (rate * 1.03).toFixed(8)
+    (rate * 1.05).toFixed(8)
   )
 
   // Prepare a sell off of the coin after it pumps
