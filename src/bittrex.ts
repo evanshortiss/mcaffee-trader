@@ -31,11 +31,23 @@ function queueSell (ticker: string) {
       'btc',
       ticker,
       balance.Available.toString(),
-      market.Ask.toFixed(8)
+      (market.Ask * 0.99).toFixed(8)
     )
 
     log(`sell success:`, sellResult)
   }, SELL_TIMEOUT)
+}
+
+/**
+ * Logs the order book for the given ticker vs. BTC
+ * @param ticker
+ */
+async function logOrderBook(ticker: string) {
+  log(`logging order book for BTC-${ticker}`)
+
+  const orders = await client.getOrderBook('BTC', ticker, 'BOTH')
+
+  log(JSON.stringify(orders, null, 4))
 }
 
 /**
@@ -64,11 +76,14 @@ export async function buyCoin (ticker: string, btcAmount: number) {
     'btc',
     ticker,
     amt,
-    rate.toFixed(8)
+    (rate * 1.03).toFixed(8)
   )
 
   // Prepare a sell off of the coin after it pumps
   queueSell(ticker)
+
+  // Log the order book so we have a snapshot of it at pump time
+  logOrderBook(ticker)
 
   return buyResult.uuid
 }
