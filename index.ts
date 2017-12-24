@@ -2,8 +2,6 @@
 
 require('dotenv').config()
 
-import './src/nock'
-
 // This is John's user ID, we'll use it to pluck out his tweets
 const officialmcafee = 961445378
 
