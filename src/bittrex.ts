@@ -4,8 +4,9 @@ require('dotenv').config()
 import * as Bittrex from '@evanshortiss/bittrex.js'
 import * as env from 'env-var'
 import log from './log'
+import { setTimeout } from 'timers';
 
-let bought = false;
+const SELL_TIMEOUT = 17 * 60 * 1000
 
 const client = new Bittrex.RestClient({
   apikey: env.get('BITTREX_API_KEY').required().asString(),
@@ -13,33 +14,61 @@ const client = new Bittrex.RestClient({
 })
 
 /**
+ * Sell the coin after 17 minutes.
+ * Need to make this smarter so it tracks volume, price etc.
+ * @param ticker
+ */
+function queueSell (ticker: string) {
+  setTimeout(async () => {
+    log(`begin sell of all purcashed ${ticker}`)
+
+    const market = await client.getTicker('BTC', ticker)
+    const balance = await client.getBalance(ticker)
+
+    log(`selling ${balance.Available} units of ${ticker} for ${market.Ask.toFixed(8)}`)
+
+    const sellResult = await client.sellLimit(
+      'btc',
+      ticker,
+      balance.Available.toString(),
+      market.Ask.toFixed(8)
+    )
+
+    log(`sell success:`, sellResult)
+  }, SELL_TIMEOUT)
+}
+
+/**
  * Buy the given ticker using the given BTC amount
  * @param ticker
  * @param btcAmount
  */
 export async function buyCoin (ticker: string, btcAmount: number) {
-  if (bought) {
-    log('already made a purchase. not making another without intervention')
+  log(`purchasing some ${ticker} using ${btcAmount.toFixed(8)} BTC. getting market btc-${ticker}`)
+
+  const market = await client.getTicker('BTC', ticker)
+  const rate = market.Ask
+
+  if (btcAmount < rate) {
+    log(`amount of btc alllocated for purchase (${btcAmount.toFixed(8)}) is less than ask of ${rate.toFixed(8)} per coin`)
     return
   }
 
-  if (!bought) {
-    log('making a purchase!')
-    bought = true
-  }
+  log(`current ask for BTC-${ticker} is ${rate.toFixed(8)}`)
 
-  const market = await client.getTicker('btc', ticker)
-  const rate = market.Ask
-  const amt = Math.floor((btcAmount / (rate * 0.9))).toString()
+  const amt = Math.floor((btcAmount / rate * 0.95)).toString()
 
-  log(`buying ${amt} of ${ticker} for ${rate}`)
+  log(`buying ${amt} units of ${ticker} at ${rate}`)
 
   const buyResult = await client.buyLimit(
     'btc',
     ticker,
     amt,
-    rate.toString()
+    rate.toFixed(8)
   )
+
+  // Prepare a sell off of the coin after it pumps
+  queueSell(ticker)
 
   return buyResult.uuid
 }

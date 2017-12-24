@@ -35,7 +35,7 @@ export function getFirstSentenceInTweet (tweet: string) {
  * @param tweet
  */
 export function getTickerForTweet (tweet: string) {
-  log('classifying tweet "%s"', tweet)
+  log('classifying tweet', tweet)
 
   const ticker = classifier.classify(getFirstSentenceInTweet(tweet))
 

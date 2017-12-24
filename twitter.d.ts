@@ -34,7 +34,10 @@ declare module 'twitter' {
       user: {
         id: number
       },
-      timestamp_ms: string
+      timestamp_ms: string,
+      extended_tweet: {
+        text: string
+      }
     }
   }
 

@@ -36,9 +36,6 @@ const onStreamData = (data: StreamData) => {
     log(JSON.stringify(data, null, 2))
 
     parseMcaffeeTweet(data)
-  } else {
-    log('stream received data, but wasn\'t a mcaffe tweet')
-    log(JSON.stringify(data, null, 2))
   }
 }
 
@@ -58,13 +55,12 @@ function connect () {
  * @param data
  */
 async function parseMcaffeeTweet (data: StreamData) {
-  if (!util.isCoinOfTheDayTweet(data.text)) {
+  if (!util.isCoinOfTheDayTweet(data.extended_tweet.text)) {
     log('was a mcaffee tweet but is not coin of the day')
-    log(JSON.stringify(data, null, 2))
     return;
   }
 
-  const ticker = classifier.getTickerForTweet(data.text)
+  const ticker = classifier.getTickerForTweet(data.extended_tweet.text)
 
   if (!ticker) {
     log('unable to extract a ticker from tweet')
@@ -84,7 +80,7 @@ async function parseMcaffeeTweet (data: StreamData) {
     // Take 10% of balance and buy mcaffee's shill coin
     const amtToSpend = btcBalance * 0.1
 
-    log(`spending approx ${amtToSpend} on ${ticker}`  )
+    log(`spending approx ${amtToSpend} on ${ticker}`)
 
     const buyResult = await btrx.buyCoin(ticker, amtToSpend)
 
