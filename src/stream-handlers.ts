@@ -16,5 +16,7 @@ export function onStreamData (data: StreamData) {
   if (data.user && data.user.id === officialmcafee) {
     log('stream received data. was a mcaffee tweet')
     parseTweet(data)
+  } else {
+    log('stream received data. was not a mcaffee tweet')
   }
 }
