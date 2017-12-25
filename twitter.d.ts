@@ -36,7 +36,7 @@ declare module 'twitter' {
       },
       timestamp_ms: string,
       extended_tweet: {
-        text: string
+        full_text: string
       }
     }
   }

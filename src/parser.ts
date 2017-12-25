@@ -12,12 +12,18 @@ import * as classifier from './approximator'
  * @param data
  */
 export default async function parseMcaffeeTweet (data: StreamData) {
-  if (!util.isCoinOfTheDayTweet(data.extended_tweet.text)) {
+  const text = data.extended_tweet ? data.extended_tweet.full_text : data.text
+
+  if (!text) {
+    log('unable to extract text from tweet. might be malformed!?')
+  }
+
+  if (!util.isCoinOfTheDayTweet(text)) {
     log('was a mcaffee tweet but is not coin of the day')
     return;
   }
 
-  const ticker = classifier.getTickerForTweet(data.extended_tweet.text)
+  const ticker = classifier.getTickerForTweet(text)
 
   if (!ticker) {
     log('unable to extract a ticker from tweet')
