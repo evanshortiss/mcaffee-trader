@@ -36,7 +36,7 @@ async function fetchSupportedMarkets () {
   log('fetched market summaries from bittrex')
 
   // Refresh every two minutes
-  setTimeout(fetchSupportedMarkets, 5 * 60 * 1000)
+  setTimeout(fetchSupportedMarkets, 2.5 * 60 * 1000)
 }
 
 /**
@@ -82,7 +82,7 @@ async function logOrderBook(ticker: string) {
  * @param btcAmount
  */
 export async function buyCoin (ticker: string) {
-  // Take 10% of balance and buy mcaffee's shill coin
+  // Take 20% of balance and buy mcaffee's shill coin
   const amtToSpend = btcBalance * 0.2
 
   log(`purchasing ${ticker} using ${amtToSpend.toFixed(8)} BTC. getting market btc-${ticker}`)
@@ -150,12 +150,4 @@ export function getMarketForTicker (ticker: string) {
   return supportedMarkets.find((m) => {
     return m.MarketName.split('-')[1].toUpperCase() === ticker.toUpperCase()
   })
-}
-
-/**
- * Check if a given ticker is available for trading on bittrex
- * @param ticker
- */
-export async function isTickerAvailable (ticker: string) {
-  return getMarketForTicker(ticker)
 }

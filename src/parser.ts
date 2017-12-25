@@ -7,6 +7,36 @@ import * as util from './util'
 import * as btrx from './bittrex'
 import * as classifier from './approximator'
 
+// This will pluck the coin of the day tweet format
+const rgx1 = /^coin of the day: \w+ \((.*?)\)/gi
+const rgx2 = /^coin of the day \w+ \((.*?)\)/gi
+
+/**
+ * Extracts the "coin of the day: $NAME ($SYMBOL)" from a tweet
+ * @param text
+ */
+function pluckCoinOfTheDayString (text: string) {
+  const match = text.match(rgx1) || text.match(rgx2)
+
+  if (match) {
+    return match[0]
+  }
+}
+
+/**
+ * Extracts the "$SYMBOL" from a tweet
+ * @param text
+ */
+function pluckTickerFromString (text: string) {
+  const symbol = text.match(/\((.*?)\)/gi)
+
+  if (symbol) {
+    return symbol[0]
+      .replace('(', '')
+      .replace(')', '')
+  }
+}
+
 /**
  * Parses a tweet from mcaffee and attempts to buy what he shills
  * @param data
@@ -18,12 +48,17 @@ export default async function parseMcaffeeTweet (data: StreamData) {
     log('unable to extract text from tweet. might be malformed!?')
   }
 
-  if (!util.isCoinOfTheDayTweet(text)) {
+  log(`parsing tweet "${text}"`)
+
+  // Pulls out the sentence "coin of the day: $NAME ($SYMBOL)"
+  const coinOfTheDaySentence = pluckCoinOfTheDayString(text)
+
+  if (!coinOfTheDaySentence) {
     log('was a mcaffee tweet but is not coin of the day')
     return;
   }
 
-  const ticker = classifier.getTickerForTweet(text)
+  const ticker = pluckTickerFromString(coinOfTheDaySentence)
 
   if (!ticker) {
     log('unable to extract a ticker from tweet')
@@ -33,15 +68,9 @@ export default async function parseMcaffeeTweet (data: StreamData) {
     log(`extracted ticker as "${ticker}" from tweet`)
   }
 
-  const isAvailableOnBittrex = await btrx.isTickerAvailable(ticker)
+  log(`try purchase ${ticker} on bittrex`)
 
-  if (isAvailableOnBittrex) {
-    log(`purcashing ${ticker} on bittrex`)
+  const buyResult = await btrx.buyCoin(ticker)
 
-    const buyResult = await btrx.buyCoin(ticker)
-
-    log(`bought ${ticker}. txid is ${buyResult}`)
-  } else {
-    log(`${ticker} is not available on bittrex, not buying...`)
-  }
+  log('buy result', buyResult)
 }

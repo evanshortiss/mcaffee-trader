@@ -15,10 +15,6 @@ const officialmcafee = 961445378
 export function onStreamData (data: StreamData) {
   if (data.user && data.user.id === officialmcafee) {
     log('stream received data. was a mcaffee tweet')
-    log(JSON.stringify(data, null, 2))
-
     parseTweet(data)
-  } else {
-    log('received tweet, but was not by mcaffee')
   }
 }
