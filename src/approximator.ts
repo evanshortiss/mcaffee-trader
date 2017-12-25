@@ -1,5 +1,6 @@
 
 import { BayesClassifier } from 'natural'
+import { Coin } from './models'
 import log from './log'
 
 const coins = require('../fixtures/all-coins.json') as Coin[]

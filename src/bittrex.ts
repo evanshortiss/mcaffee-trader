@@ -5,13 +5,39 @@ import * as Bittrex from '@evanshortiss/bittrex.js'
 import * as env from 'env-var'
 import log from './log'
 import { setTimeout } from 'timers';
+import { Models } from '@evanshortiss/bittrex.js';
 
-const SELL_TIMEOUT = 17 * 60 * 1000
+const SELL_TIMEOUT = 4 * 60 * 1000
 
 const client = new Bittrex.RestClient({
   apikey: env.get('BITTREX_API_KEY').required().asString(),
   apisecret: env.get('BITTREX_API_SECRET').required().asString()
 })
+
+// We keep these cached for quicker execution of trades
+let supportedMarkets: Bittrex.Models.MarketSummaryEntry[] = []
+let btcBalance = 0
+
+// Setup refresh loops for balance and supported markets
+fetchBtcBalance()
+fetchSupportedMarkets()
+
+/**
+ * Fetches supported market tickers so we can quickly determine support.
+ */
+async function fetchSupportedMarkets () {
+  log('fetching market summaries from bittrex')
+
+  const markets = await client.getMarketSummaries()
+
+  // Store market names, e.g XVG as upper case strings
+  supportedMarkets = markets;
+
+  log('fetched market summaries from bittrex')
+
+  // Refresh every two minutes
+  setTimeout(fetchSupportedMarkets, 5 * 60 * 1000)
+}
 
 /**
  * Sell the coin after 17 minutes.
@@ -31,10 +57,10 @@ function queueSell (ticker: string) {
       'btc',
       ticker,
       balance.Available.toString(),
-      (market.Ask * 0.98).toFixed(8)
+      (market.Ask * 0.97).toFixed(8)
     )
 
-    log(`sell success:`, sellResult)
+    log(`sell result:`, sellResult)
   }, SELL_TIMEOUT)
 }
 
@@ -55,28 +81,38 @@ async function logOrderBook(ticker: string) {
  * @param ticker
  * @param btcAmount
  */
-export async function buyCoin (ticker: string, btcAmount: number) {
-  log(`purchasing some ${ticker} using ${btcAmount.toFixed(8)} BTC. getting market btc-${ticker}`)
+export async function buyCoin (ticker: string) {
+  // Take 10% of balance and buy mcaffee's shill coin
+  const amtToSpend = btcBalance * 0.2
 
-  const market = await client.getTicker('BTC', ticker)
-  const rate = market.Ask
+  log(`purchasing ${ticker} using ${amtToSpend.toFixed(8)} BTC. getting market btc-${ticker}`)
 
-  if (btcAmount < rate) {
-    log(`amount of btc alllocated for purchase (${btcAmount.toFixed(8)}) is less than ask of ${rate.toFixed(8)} per coin`)
+  const market = getMarketForTicker(ticker)
+
+  if (!market) {
+    log(`unable to find market for symbol ${ticker}`)
+    return;
+  }
+
+  // Need to be willing to pay a little more than market...
+  const rate = market.Last * 1.1
+
+  if (amtToSpend < rate) {
+    log(`amount of btc alllocated for purchase (${amtToSpend.toFixed(8)}) is less than ask of ${rate.toFixed(8)} per coin`)
     return
   }
 
-  log(`current ask for BTC-${ticker} is ${rate.toFixed(8)}`)
+  log(`current ask for BTC-${ticker} is ${market.Last.toFixed(8)}, but we will offer ${rate.toFixed(8)}`)
 
-  const amt = Math.floor((btcAmount / rate * 0.95)).toString()
+  const amt = Math.floor(amtToSpend / (rate * 0.9)).toFixed(0)
 
-  log(`buying ${amt} units of ${ticker} at ${rate}`)
+  log(`buying ${amt} units of ${ticker} at ${rate.toFixed(8)}`)
 
   const buyResult = await client.buyLimit(
     'btc',
     ticker,
     amt,
-    (rate * 1.05).toFixed(8)
+    rate.toFixed(8)
   )
 
   // Prepare a sell off of the coin after it pumps
@@ -88,13 +124,32 @@ export async function buyCoin (ticker: string, btcAmount: number) {
   return buyResult.uuid
 }
 
+export async function fetchBtcBalance () {
+  log('fetching btc balance bittrex')
+
+  const balanceResponse = await client.getBalance('btc')
+
+  btcBalance = balanceResponse.Available;
+
+  log('fetched btc balance bittrex')
+
+  setTimeout(fetchBtcBalance, 30 * 60 * 1000)
+}
+
 /**
  * Return the user's BTC balance
  */
 export async function getBtcBalance () {
-  const balance = await client.getBalance('btc')
+  return btcBalance
+}
 
-  return balance.Available;
+/**
+ * Gets a market object for a ticker
+ */
+export function getMarketForTicker (ticker: string) {
+  return supportedMarkets.find((m) => {
+    return m.MarketName.split('-')[1].toUpperCase() === ticker.toUpperCase()
+  })
 }
 
 /**
@@ -102,22 +157,5 @@ export async function getBtcBalance () {
  * @param ticker
  */
 export async function isTickerAvailable (ticker: string) {
-  try {
-    await client.getTicker('BTC', ticker)
-
-    // Call was a success so this ticker is available
-    return true;
-  } catch (e) {
-    // Call failed. Determine if it was because the ticker is not valid...
-    if (e instanceof Bittrex.Errors.BittrexRestApiError) {
-      if (e.bittexMessage === 'INVALID_MARKET') {
-        return false
-      } else {
-        throw e;
-      }
-    }
-
-    // ...or just because some other HTTP error occurred
-    throw e;
-  }
+  return getMarketForTicker(ticker)
 }
