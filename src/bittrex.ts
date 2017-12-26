@@ -7,7 +7,7 @@ import log from './log'
 import { setTimeout } from 'timers';
 import { Models } from '@evanshortiss/bittrex.js';
 
-const SELL_TIMEOUT = 4 * 60 * 1000
+const SELL_TIMEOUT = 5 * 60 * 1000
 
 const client = new Bittrex.RestClient({
   apikey: env.get('BITTREX_API_KEY').required().asString(),
