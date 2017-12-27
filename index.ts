@@ -7,7 +7,6 @@ import { StreamData } from 'twitter'
 import * as btrx from './src/bittrex'
 import getStream from './src/twitter-stream'
 import * as util from './src/util'
-import * as classifier from './src/approximator'
 import * as streamHandlers from './src/stream-handlers'
 import log from './src/log'
 
@@ -32,8 +31,8 @@ function connect () {
 }
 
 process.on('unhandledRejection', (e) => {
-  log('unhandled rejection')
-  log(e)
+  console.log('unhandled rejection')
+  console.log(e)
 })
 
 connect()

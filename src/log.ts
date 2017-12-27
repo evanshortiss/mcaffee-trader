@@ -8,4 +8,7 @@ export function getLogger (name: string) {
   return debug(`${NAME}:${name}`)
 }
 
-export default log
+export default function (...args: any[]) {
+  args.unshift(new Date().toISOString());
+  log.apply(log, args)
+}

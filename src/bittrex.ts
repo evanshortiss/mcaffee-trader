@@ -7,6 +7,7 @@ import log from './log'
 import { setTimeout } from 'timers';
 import { Models } from '@evanshortiss/bittrex.js';
 
+// Sell 5 minutes after purchase
 const SELL_TIMEOUT = 5 * 60 * 1000
 
 const client = new Bittrex.RestClient({
@@ -35,12 +36,12 @@ async function fetchSupportedMarkets () {
 
   log('fetched market summaries from bittrex')
 
-  // Refresh every two minutes
-  setTimeout(fetchSupportedMarkets, 2.5 * 60 * 1000)
+  // Refresh market info every two minutes
+  setTimeout(fetchSupportedMarkets, 2 * 60 * 1000)
 }
 
 /**
- * Sell the coin after 17 minutes.
+ * Sell the coin after a few minutes.
  * Need to make this smarter so it tracks volume, price etc.
  * @param ticker
  */
@@ -104,12 +105,12 @@ export async function buyCoin (ticker: string) {
 
   log(`current ask for BTC-${ticker} is ${market.Last.toFixed(8)}, but we will offer ${rate.toFixed(8)}`)
 
-  const amt = Math.floor(amtToSpend / (rate * 0.9)).toFixed(0)
+  const amt = (amtToSpend / (rate * 0.9)).toFixed(0)
 
   log(`buying ${amt} units of ${ticker} at ${rate.toFixed(8)}`)
 
   const buyResult = await client.buyLimit(
-    'btc',
+    'BTC',
     ticker,
     amt,
     rate.toFixed(8)
@@ -134,13 +135,6 @@ export async function fetchBtcBalance () {
   log('fetched btc balance bittrex')
 
   setTimeout(fetchBtcBalance, 30 * 60 * 1000)
-}
-
-/**
- * Return the user's BTC balance
- */
-export async function getBtcBalance () {
-  return btcBalance
 }
 
 /**

@@ -13,17 +13,23 @@
   "dependencies": {
     "@evanshortiss/bittrex.js": "~0.2.0",
     "@types/natural": "~0.2.33",
+    "@types/uuid": "~3.4.3",
     "axios": "~0.17.1",
+    "bluebird": "~3.5.1",
     "dotenv": "~4.0.0",
     "env-var": "~3.1.0",
     "natural": "~0.5.4",
     "nock": "~9.1.5",
-    "twitter": "~1.7.1"
+    "node-tesseract": "~0.2.7",
+    "request": "~2.83.0",
+    "twitter": "~1.7.1",
+    "uuid": "~3.1.0"
   },
   "devDependencies": {
     "@types/debug": "0.0.30",
     "@types/nock": "~9.1.0",
     "@types/node": "~8.5.2",
+    "@types/request": "~2.0.9",
     "typescript": "~2.6.2"
   }
 }

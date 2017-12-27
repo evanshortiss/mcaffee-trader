@@ -16,7 +16,8 @@
     "src/**/*.ts",
     "src/*.ts",
     "*.ts",
-    "twitter.d.ts"
+    "twitter.d.ts",
+    "node-tesseract.d.ts"
   ]
 }
 

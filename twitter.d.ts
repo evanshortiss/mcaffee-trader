@@ -20,6 +20,19 @@ declare module 'twitter' {
       access_token_secret: string
     }
 
+    interface Media {
+      id: number
+      id_str: string
+      indices: [ number, number ]
+      // "http://pbs.twimg.com/media/DR-kkH4XcAAQ-vc.jpg"
+      media_url: string
+      media_url_https: string
+      url: string
+      display_url: string
+      expanded_url: string
+      type: string // e.g "photo"
+    }
+
     interface StreamData {
       created_at: string
       id: number
@@ -34,6 +47,9 @@ declare module 'twitter' {
       user: {
         id: number
       },
+      entities: {
+        media: Media[]
+      }
       timestamp_ms: string,
       extended_tweet: {
         full_text: string
