@@ -1,4 +1,3 @@
-/// <reference path="../node-tesseract.d.ts"/>
 
 import { StreamData } from 'twitter';
 import * as request from 'request'
@@ -29,7 +28,7 @@ function downloadImage (url: string): Promise<string> {
 }
 
 /**
- * Pass the image path to tesseract and parse text from the image
+ * Pass the image path to gocr and parse text from the image
  * @param imagePath
  */
 function getTextFromImage (imagePath: string): Promise<string> {
